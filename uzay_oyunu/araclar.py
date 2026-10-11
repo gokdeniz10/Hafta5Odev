@@ -43,7 +43,7 @@ def en_bagli_gezegenler(galaksi: dict) -> list[str]:
 
 def sure_olc(fonksiyon: Callable) -> Callable:
     """Verilen fonksiyonun ne kadar sürdüğünü yazan bir sarmalayıcı döndürür."""
-    def sarmalayici(*args, **kwargs):
+    def sarmalayici(*args: object, **kwargs: object) -> object:
         """Asıl fonksiyonu çağırır, geçen süreyi yazar ve sonucu döndürür."""
         baslangic = time.time()
         sonuc = fonksiyon(*args, **kwargs)

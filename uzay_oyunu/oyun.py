@@ -10,7 +10,7 @@ import json
 from uzay_oyunu.araclar import hamle_sayaci
 
 
-def galaksi_kur(gezegenler: list[str], baglantilar: dict, baslangic: str, **kwargs) -> dict:
+def galaksi_kur(gezegenler: list[str], baglantilar: dict, baslangic: str, **kwargs: int) -> dict:
     """Gezegenler ve bağlantılardan bir galaksi sözlüğü kurar.
 
     Başlangıç gezegeni listede yoksa ValueError fırlatır.
