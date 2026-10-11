@@ -5,6 +5,37 @@
 # ve pilot toplar, sonunda kara deliğe atlayarak oyunu kazanmaya çalışır.
 
 
+def envanter_metni(credits: bool, engines: bool, copilot: bool) -> str:
+    """Oyuncunun eşyalarını 'Sende: ...' metni olarak döndürür.
+
+    Hiç eşya yoksa boş metin döndürür.
+    """
+    metin = ""
+    if credits:
+        metin = metin + "bol kredi"
+    if engines:
+        if metin != "":
+            metin = metin + ", "
+        metin = metin + "bir hiperdrive"
+    if copilot:
+        if metin != "":
+            metin = metin + ", "
+        metin = metin + "yetenekli bir pilot"
+    if metin == "":
+        return ""
+    return "Sende: " + metin
+
+
+def hedef_menusu(hedefler: list[str]) -> str:
+    """Gidilebilecek yerleri numaralı bir menü metni olarak döndürür."""
+    metin = "Nereye gitmek istersin?"
+    sira = 1
+    for hedef in hedefler:
+        metin = metin + "\n[" + str(sira) + "] " + hedef
+        sira = sira + 1
+    return metin
+
+
 def travel() -> None:
     """Oyunu baştan sona oynatır."""
     print("Uzay yolculuğuna hoş geldin! Amacın kara delikten geçmek.")
@@ -18,19 +49,9 @@ def travel() -> None:
         print("-" * 40)
 
         # sendeki eşyaları göster
-        envanter = ""
-        if credits:
-            envanter = envanter + "bol kredi"
-        if engines:
-            if envanter != "":
-                envanter = envanter + ", "
-            envanter = envanter + "bir hiperdrive"
-        if copilot:
-            if envanter != "":
-                envanter = envanter + ", "
-            envanter = envanter + "yetenekli bir pilot"
+        envanter = envanter_metni(credits, engines, copilot)
         if envanter != "":
-            print("Sende: " + envanter)
+            print(envanter)
 
         # gezegende olanlar
         if planet == "dünya":
@@ -86,11 +107,7 @@ def travel() -> None:
 
         # sonraki gezegeni seç
         if not game_end:
-            print("Nereye gitmek istersin?")
-            sira = 1
-            for hedef in destinations:
-                print("[" + str(sira) + "] " + hedef)
-                sira = sira + 1
+            print(hedef_menusu(destinations))
             secim = input()
             planet = destinations[int(secim) - 1]
 
