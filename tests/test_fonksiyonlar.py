@@ -5,6 +5,7 @@
 
 import pytest
 
+from uzay_oyunu.araclar import en_bagli_gezegenler, hamle_sayaci
 from uzay_oyunu.oyun import envanter_metni, galaksi_kur, galaksi_yukle, hedef_menusu
 
 
@@ -48,3 +49,28 @@ def test_yakit_verilmezse_50():
 def test_baslangic_listede_yoksa_hata():
     with pytest.raises(ValueError):
         galaksi_kur(["mars"], {"mars": []}, "venüs")
+
+
+def test_hamle_sayaci_birer_artar():
+    sayac = hamle_sayaci()
+    assert sayac() == 1
+    assert sayac() == 2
+    assert sayac() == 3
+
+
+def test_iki_sayac_birbirini_etkilemez():
+    birinci = hamle_sayaci()
+    ikinci = hamle_sayaci()
+    birinci()
+    birinci()
+    assert ikinci() == 1
+
+
+def test_en_bagli_gezegenler():
+    g = galaksi_yukle()
+    assert en_bagli_gezegenler(g) == ["sirius", "centauri", "dünya", "orion", "kara_delik"]
+
+
+def test_esitlikte_alfabetik():
+    g = galaksi_kur(["c", "a", "b"], {"a": ["b"], "b": ["a"], "c": ["a", "b"]}, "a")
+    assert en_bagli_gezegenler(g) == ["c", "a", "b"]

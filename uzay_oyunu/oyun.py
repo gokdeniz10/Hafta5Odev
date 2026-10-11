@@ -7,6 +7,8 @@
 
 import json
 
+from uzay_oyunu.araclar import hamle_sayaci
+
 
 def galaksi_kur(gezegenler: list[str], baglantilar: dict, baslangic: str, **kwargs) -> dict:
     """Gezegenler ve bağlantılardan bir galaksi sözlüğü kurar.
@@ -70,6 +72,8 @@ def travel() -> None:
     print("Uzay yolculuğuna hoş geldin! Amacın kara delikten geçmek.")
     galaksi = galaksi_yukle()
     planet = galaksi["konum"]
+    sayac = hamle_sayaci()
+    toplam_hamle = 0
     credits = False
     engines = False
     copilot = False
@@ -136,6 +140,9 @@ def travel() -> None:
             print(hedef_menusu(destinations))
             secim = input()
             planet = destinations[int(secim) - 1]
+            toplam_hamle = sayac()
+
+    print("Oyunu " + str(toplam_hamle) + " hamlede bitirdin!")
 
 
 if __name__ == "__main__":
