@@ -3,7 +3,9 @@
 # Tarih: 11.10.2026
 # Açıklama: Oyundan çıkarılan fonksiyonların testleri.
 
-from uzay_oyunu.oyun import envanter_metni, hedef_menusu
+import pytest
+
+from uzay_oyunu.oyun import envanter_metni, galaksi_kur, galaksi_yukle, hedef_menusu
 
 
 def test_envanter_iki_esya():
@@ -31,3 +33,18 @@ def test_hedef_menusu_iki_hedef():
 def test_hedef_menusu_tek_hedef():
     beklenen = "Nereye gitmek istersin?\n[1] sirius"
     assert hedef_menusu(["sirius"]) == beklenen
+
+
+def test_galaksi_dosyadan_kurulur():
+    g = galaksi_yukle()
+    assert g["konum"] == "dünya"
+    assert g["yakit"] == 100
+
+
+def test_yakit_verilmezse_50():
+    assert galaksi_kur(["mars"], {"mars": []}, "mars")["yakit"] == 50
+
+
+def test_baslangic_listede_yoksa_hata():
+    with pytest.raises(ValueError):
+        galaksi_kur(["mars"], {"mars": []}, "venüs")

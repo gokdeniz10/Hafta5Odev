@@ -3,6 +3,35 @@
 # Tarih: 11.10.2026
 # Açıklama: Uzay oyunu. Oyuncu gezegenler arasında dolaşır, kredi, hiperdrive
 # ve pilot toplar, sonunda kara deliğe atlayarak oyunu kazanmaya çalışır.
+# Oyun haritası galaksi.json dosyasından okunur.
+
+import json
+
+
+def galaksi_kur(gezegenler: list[str], baglantilar: dict, baslangic: str, **kwargs) -> dict:
+    """Gezegenler ve bağlantılardan bir galaksi sözlüğü kurar.
+
+    Başlangıç gezegeni listede yoksa ValueError fırlatır.
+    yakit verilmezse 50 olur.
+    """
+    if baslangic not in gezegenler:
+        raise ValueError("Başlangıç gezegeni listede yok: " + baslangic)
+    yakit = kwargs.get("yakit", 50)
+    galaksi = {
+        "gezegenler": gezegenler,
+        "baglantilar": baglantilar,
+        "konum": baslangic,
+        "yakit": yakit,
+    }
+    return galaksi
+
+
+def galaksi_yukle() -> dict:
+    """galaksi.json dosyasını okur ve galaksiyi kurar."""
+    dosya = open("uzay_oyunu/galaksi.json", encoding="utf-8")
+    veri = json.load(dosya)
+    dosya.close()
+    return galaksi_kur(**veri)
 
 
 def envanter_metni(credits: bool, engines: bool, copilot: bool) -> str:
@@ -39,7 +68,8 @@ def hedef_menusu(hedefler: list[str]) -> str:
 def travel() -> None:
     """Oyunu baştan sona oynatır."""
     print("Uzay yolculuğuna hoş geldin! Amacın kara delikten geçmek.")
-    planet = "dünya"
+    galaksi = galaksi_yukle()
+    planet = galaksi["konum"]
     credits = False
     engines = False
     copilot = False
@@ -56,11 +86,9 @@ def travel() -> None:
         # gezegende olanlar
         if planet == "dünya":
             print("Dünya'dasın. Buradan uzaya açılıyorsun.")
-            destinations = ["centauri", "sirius"]
 
         if planet == "centauri":
             print("Centauri'desin. Burada bir uzay gemisi pazarı var.")
-            destinations = ["dünya", "orion"]
             if not engines:
                 cevap = input("Hiperdrive almak ister misin? (evet/hayır) ")
                 if cevap == "evet":
@@ -72,7 +100,6 @@ def travel() -> None:
 
         if planet == "sirius":
             print("Sirius'tasın. Bir yarışma programına katıldın.")
-            destinations = ["orion", "dünya", "kara_delik"]
             if not credits:
                 print("Soru: Python'da listenin ilk elemanının indeksi kaçtır?")
                 print("[1] 1   [2] 0   [3] -1")
@@ -85,7 +112,6 @@ def travel() -> None:
 
         if planet == "orion":
             print("Orion'dasın. Barda bir pilot oturuyor.")
-            destinations = ["centauri", "sirius"]
             if not copilot:
                 cevap = input("Pilot bir bilmece soruyor: 6 x 7 kaç eder? ")
                 if cevap == "42":
@@ -96,7 +122,6 @@ def travel() -> None:
 
         if planet == "kara_delik":
             print("Kara deliğin kenarındasın.")
-            destinations = ["sirius"]
             cevap = input("Kara deliğe atlamak ister misin? (evet/hayır) ")
             if cevap == "evet":
                 if engines and copilot:
@@ -107,6 +132,7 @@ def travel() -> None:
 
         # sonraki gezegeni seç
         if not game_end:
+            destinations = galaksi["baglantilar"][planet]
             print(hedef_menusu(destinations))
             secim = input()
             planet = destinations[int(secim) - 1]
