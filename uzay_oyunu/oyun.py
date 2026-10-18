@@ -3,10 +3,11 @@
 # Tarih: 11.10.2026
 # Açıklama: Uzay oyunu. Oyuncu gezegenler arasında dolaşır, kredi, hiperdrive
 # ve pilot toplar, sonunda kara deliğe atlayarak oyunu kazanmaya çalışır.
-# Oyun haritası galaksi.json dosyasından okunur.
+# Oyun haritası galaksi.json dosyasından okunur. Her yolculuk yakıt harcar.
 
 import json
 
+from uzay_oyunu.akis import yakit_gostergesi
 from uzay_oyunu.araclar import hamle_sayaci
 
 
@@ -74,6 +75,8 @@ def travel() -> None:
     planet = galaksi["konum"]
     sayac = hamle_sayaci()
     toplam_hamle = 0
+    # her yolculuk 5 birim yakıt harcar (100 yakıtla 20 yolculuk yapılabilir)
+    gosterge = yakit_gostergesi(galaksi["yakit"], 5)
     credits = False
     engines = False
     copilot = False
@@ -139,8 +142,13 @@ def travel() -> None:
             destinations = galaksi["baglantilar"][planet]
             print(hedef_menusu(destinations))
             secim = input()
-            planet = destinations[int(secim) - 1]
-            toplam_hamle = sayac()
+            try:
+                next(gosterge)
+                planet = destinations[int(secim) - 1]
+                toplam_hamle = sayac()
+            except StopIteration:
+                print("Yakıtın bitti, uzayda sürükleniyorsun…")
+                game_end = True
 
     print("Oyunu " + str(toplam_hamle) + " hamlede bitirdin!")
 

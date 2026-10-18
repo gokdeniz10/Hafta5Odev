@@ -5,7 +5,10 @@
 
 from itertools import islice, takewhile
 
-from uzay_oyunu.akis import fibonacci
+import pytest
+
+from uzay_oyunu.akis import fibonacci, yakit_gostergesi
+from uzay_oyunu.oyun import travel
 
 
 # --- Görev 1: fibonacci ---
@@ -32,3 +35,29 @@ def test_fibonacci_tek_kullanimlik():
     assert birinci == [0, 1, 1, 2, 3]
     assert ikinci == [5, 8, 13, 21, 34]
     assert birinci != ikinci
+
+
+# --- Görev 2: yakıt göstergesi ---
+
+def test_yakit_gostergesi_ornek():
+    assert list(yakit_gostergesi(100, 30)) == [70, 40, 10, 0]
+
+
+def test_yakit_bitince_stopiteration():
+    g = yakit_gostergesi(10, 5)
+    assert next(g) == 5
+    assert next(g) == 0
+    with pytest.raises(StopIteration):
+        next(g)
+
+
+def test_oyunda_yakit_biter(monkeypatch, capsys):
+    # dünya ile sirius arasında gidip gel: ilk "2" sirius, ikinci "2" yarışma sorusu,
+    # sonra hep "2" (sirius'ta 2 = dünya, dünya'da 2 = sirius)
+    # 100 yakıt, yolculuk başı 5 -> 20 yolculuk yapılır, 21. yolculukta yakıt biter
+    girdiler = ["2"] * 22
+    monkeypatch.setattr("builtins.input", lambda yazi="": girdiler.pop(0))
+    travel()
+    cikti = capsys.readouterr().out
+    assert "Yakıtın bitti, uzayda sürükleniyorsun…" in cikti
+    assert "Oyunu 20 hamlede bitirdin!" in cikti
