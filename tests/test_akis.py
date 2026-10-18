@@ -9,7 +9,10 @@ import pytest
 
 from uzay_oyunu.akis import (ayristir, fibonacci, rota_sayaci, rota_sayaci_onbelleksiz, satirlari_oku,
                              uzun_yolculuklar, yakit_gostergesi)
-from uzay_oyunu.oyun import galaksi_yukle, travel
+from uzay_oyunu.istatistik import (buyuk_harfli_adlar_liste, buyuk_harfli_adlar_map, hizli_yolculuk,
+                                   iki_baglantili_filter, iki_baglantili_liste, toplam_baglanti_reduce,
+                                   toplam_baglanti_sum, yolculuk)
+from uzay_oyunu.oyun import galaksi_kur, galaksi_yukle, travel
 
 
 # --- Görev 1: fibonacci ---
@@ -118,3 +121,36 @@ def test_onbellek_kullaniliyor():
 def test_onbelleksiz_ayni_sonuc():
     baglantilar = galaksi_yukle()["baglantilar"]
     assert rota_sayaci_onbelleksiz(baglantilar)("dünya", 10) == rota_sayaci(baglantilar)("dünya", 10)
+
+
+# --- Görev 5: map, filter, reduce ve partial ---
+
+def test_buyuk_harfli_adlar():
+    g = galaksi_yukle()
+    beklenen = ["DÜNYA", "CENTAURI", "SIRIUS", "ORION", "KARA_DELIK"]
+    assert buyuk_harfli_adlar_map(g) == beklenen
+    assert buyuk_harfli_adlar_liste(g) == beklenen
+
+
+def test_iki_baglantili():
+    g = galaksi_yukle()
+    beklenen = ["dünya", "centauri", "sirius", "orion"]
+    assert iki_baglantili_filter(g) == beklenen
+    assert iki_baglantili_liste(g) == beklenen
+
+
+def test_toplam_baglanti():
+    g = galaksi_yukle()
+    assert toplam_baglanti_reduce(g) == 10
+    assert toplam_baglanti_sum(g) == 10
+
+
+def test_iki_yol_farkli_galakside_de_ayni():
+    g = galaksi_kur(["mars", "venüs"], {"mars": ["venüs"], "venüs": ["mars"]}, "mars")
+    assert iki_baglantili_filter(g) == iki_baglantili_liste(g) == []
+    assert toplam_baglanti_reduce(g) == toplam_baglanti_sum(g) == 2
+
+
+def test_hizli_yolculuk_hiz_3():
+    assert hizli_yolculuk("dünya", "sirius") == yolculuk("dünya", "sirius", hiz=3)
+    assert hizli_yolculuk("dünya", "sirius") == "dünya -> sirius (hız: 3)"
