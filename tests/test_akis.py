@@ -7,7 +7,7 @@ from itertools import islice, takewhile
 
 import pytest
 
-from uzay_oyunu.akis import fibonacci, yakit_gostergesi
+from uzay_oyunu.akis import ayristir, fibonacci, satirlari_oku, uzun_yolculuklar, yakit_gostergesi
 from uzay_oyunu.oyun import travel
 
 
@@ -61,3 +61,35 @@ def test_oyunda_yakit_biter(monkeypatch, capsys):
     cikti = capsys.readouterr().out
     assert "Yakıtın bitti, uzayda sürükleniyorsun…" in cikti
     assert "Oyunu 20 hamlede bitirdin!" in cikti
+
+
+# --- Görev 3: seyir defteri boru hattı ---
+
+SEYIR = "veri/seyir.txt"
+
+
+def test_toplam_yakit():
+    assert sum(y for _, _, y in ayristir(satirlari_oku(SEYIR))) == 88
+
+
+def test_uzun_yolculuklar():
+    kayitlar = ayristir(satirlari_oku(SEYIR))
+    assert [h for _, h, _ in uzun_yolculuklar(kayitlar, 10)] == ["sirius", "centauri", "orion", "kara_delik"]
+
+
+def test_yorum_satiri_atlanir():
+    satirlar = satirlari_oku(SEYIR)
+    for satir in satirlar:
+        assert not satir.startswith("#")
+
+
+def test_ayristir_ilk_kayit():
+    kayitlar = ayristir(satirlari_oku(SEYIR))
+    assert next(kayitlar) == ("dünya", "sirius", 12)
+
+
+def test_boru_hatti_tek_tek_uretir():
+    # next() listede çalışmaz, üreteçte çalışır: boru hattı kayıtları tek tek veriyor
+    uzunlar = uzun_yolculuklar(ayristir(satirlari_oku(SEYIR)), 10)
+    assert next(uzunlar) == ("dünya", "sirius", 12)
+    assert next(uzunlar) == ("orion", "centauri", 15)
