@@ -7,8 +7,9 @@ from itertools import islice, takewhile
 
 import pytest
 
-from uzay_oyunu.akis import ayristir, fibonacci, satirlari_oku, uzun_yolculuklar, yakit_gostergesi
-from uzay_oyunu.oyun import travel
+from uzay_oyunu.akis import (ayristir, fibonacci, rota_sayaci, rota_sayaci_onbelleksiz, satirlari_oku,
+                             uzun_yolculuklar, yakit_gostergesi)
+from uzay_oyunu.oyun import galaksi_yukle, travel
 
 
 # --- Görev 1: fibonacci ---
@@ -93,3 +94,27 @@ def test_boru_hatti_tek_tek_uretir():
     uzunlar = uzun_yolculuklar(ayristir(satirlari_oku(SEYIR)), 10)
     assert next(uzunlar) == ("dünya", "sirius", 12)
     assert next(uzunlar) == ("orion", "centauri", 15)
+
+
+# --- Görev 4: önbellekli rota sayacı ---
+
+def test_rota_sayisi_ornek():
+    say = rota_sayaci(galaksi_yukle()["baglantilar"])
+    assert (say("dünya", 3), say("dünya", 10), say("dünya", 40)) == (9, 2185, 16832258606399)
+
+
+def test_sifir_adim_tek_rota():
+    say = rota_sayaci(galaksi_yukle()["baglantilar"])
+    assert say("kara_delik", 0) == 1
+    assert say("kara_delik", 1) == 1
+
+
+def test_onbellek_kullaniliyor():
+    say = rota_sayaci(galaksi_yukle()["baglantilar"])
+    say("dünya", 10)
+    assert say.cache_info().hits > 0
+
+
+def test_onbelleksiz_ayni_sonuc():
+    baglantilar = galaksi_yukle()["baglantilar"]
+    assert rota_sayaci_onbelleksiz(baglantilar)("dünya", 10) == rota_sayaci(baglantilar)("dünya", 10)
