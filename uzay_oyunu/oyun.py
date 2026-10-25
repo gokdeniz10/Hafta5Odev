@@ -154,7 +154,7 @@ def travel() -> None:
             while not gecerli:
                 secim = input("> ")
                 if secim in KOMUTLAR:
-                    # girilen şey bir komutsa komutu çalıştır ve sonucu yaz
+                    # girilen şey bir komutsa komutu çalıştır, sonucu yaz ve menüyü tekrar göster
                     durum = {
                         "konum": planet,
                         "baglantilar": galaksi["baglantilar"],
@@ -164,6 +164,7 @@ def travel() -> None:
                     }
                     komut_fonksiyonu = KOMUTLAR[secim][0]
                     print(komut_fonksiyonu(durum))
+                    print(hedef_menusu(destinations))
                 elif secim.isdigit() and 1 <= int(secim) <= len(destinations):
                     gecerli = True
                 else:

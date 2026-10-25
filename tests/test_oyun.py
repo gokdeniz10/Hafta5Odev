@@ -58,3 +58,20 @@ def test_gecersiz_secim_yakit_harcamaz(monkeypatch, capsys):
 def test_galaksi_baska_klasorden_yuklenir(monkeypatch, tmp_path):
     monkeypatch.chdir(tmp_path)
     assert galaksi_yukle()["konum"] == "dünya"
+
+
+def test_komuttan_sonra_menu_tekrar_gosterilir(monkeypatch, capsys):
+    # dünya'da "yardim" yaz, sonra sirius'a git ve hazırlıksız atlayıp kaybet
+    girdiler = ["yardim", "2", "1", "3", "evet"]
+    monkeypatch.setattr("builtins.input", lambda yazi="": girdiler.pop(0))
+    travel()
+    cikti = capsys.readouterr().out
+    menu = "Nereye gitmek istersin?\n[1] centauri\n[2] sirius"
+    yardim_cikti = "yardim    komutları listeler"
+    assert yardim_cikti in cikti
+    # menü komuttan önce bir kez, komuttan sonra bir kez daha gösterilmeli
+    assert cikti.count(menu) == 2
+    assert cikti.index(yardim_cikti) < cikti.rindex(menu)
+    # sonra geçerli bir seçimle sirius'a gidilebilmeli
+    assert "Sirius'tasın." in cikti
+    assert "Oyunu 2 hamlede bitirdin!" in cikti
