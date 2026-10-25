@@ -96,6 +96,33 @@ def log_cagri(fonksiyon: Callable) -> Callable:
     return sarmalayici
 
 
+def sinirla(alt: int, ust: int) -> Callable:
+    """İlk argümanın [alt, ust] aralığında olmasını şart koşan dekoratörü döndürür.
+
+    Aralık dışındaysa fonksiyon hiç çalışmaz, ValueError fırlatılır.
+    """
+    def dekorator(fonksiyon: Callable) -> Callable:
+        """Fonksiyonu aralık kontrolü yapan bir sarmalayıcıyla sarar."""
+        @wraps(fonksiyon)
+        def sarmalayici(*args: object, **kwargs: object) -> object:
+            """İlk argümanı kontrol eder, uygunsa asıl fonksiyonu çağırır."""
+            deger = args[0]
+            if deger < alt or deger > ust:
+                raise ValueError(fonksiyon.__name__ + ": " + str(deger) + " değeri "
+                                 + str(alt) + "-" + str(ust) + " aralığında değil")
+            return fonksiyon(*args, **kwargs)
+
+        return sarmalayici
+
+    return dekorator
+
+
+@sinirla(0, 100)
+def yakit_harca(miktar: int) -> int:
+    """Dolu depodan (100) miktar kadar yakıt harcar ve kalan yakıtı döndürür."""
+    return 100 - miktar
+
+
 if __name__ == "__main__":
     from uzay_oyunu.akis import rota_sayaci_onbelleksiz
     from uzay_oyunu.oyun import galaksi_yukle

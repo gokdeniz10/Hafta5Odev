@@ -5,7 +5,7 @@
 
 import pytest
 
-from uzay_oyunu.dekoratorler import fib_cagri_sayilari, log_cagri, say, sure_olc
+from uzay_oyunu.dekoratorler import fib_cagri_sayilari, log_cagri, say, sure_olc, yakit_harca
 from uzay_oyunu.komutlar import KOMUTLAR, envanter, harita, komut, yardim
 
 
@@ -122,3 +122,25 @@ def test_harita_komutu():
     durum = ornek_durum()
     durum["konum"] = "orion"
     assert harita(durum) == "sirius"
+
+
+
+# --- Görev 5: sinirla ---
+
+def test_yakit_harca_ornek():
+    assert yakit_harca(30) == 70
+
+
+def test_yakit_harca_sinir_degerleri():
+    assert yakit_harca(0) == 100
+    assert yakit_harca(100) == 0
+
+
+def test_yakit_harca_ust_sinir_disi():
+    with pytest.raises(ValueError, match="yakit_harca: 150 değeri 0-100 aralığında değil"):
+        yakit_harca(150)
+
+
+def test_yakit_harca_alt_sinir_disi():
+    with pytest.raises(ValueError, match="yakit_harca: -1 değeri 0-100 aralığında değil"):
+        yakit_harca(-1)
