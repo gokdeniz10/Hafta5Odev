@@ -127,6 +127,37 @@ def yakit_harca(miktar: int) -> int:
     return 100 - miktar
 
 
+def hafiza(maxsize: int | None = None) -> Callable:
+    """Sonuçları closure içindeki bir sözlükte saklayan önbellek dekoratörünü döndürür.
+
+    maxsize None ise önbellek sınırsızdır. Bir sayı verilirse önbellek dolunca
+    en eski girdi silinir.
+    """
+    def dekorator(fonksiyon: Callable) -> Callable:
+        """Fonksiyonu önbellekli bir sarmalayıcıyla sarar."""
+        onbellek = {}
+
+        @wraps(fonksiyon)
+        def sarmalayici(*args: object, **kwargs: object) -> object:
+            """Sonuç önbellekte varsa onu, yoksa hesaplayıp sakladığı sonucu döndürür."""
+            anahtar = args
+            for ad in kwargs:
+                anahtar = anahtar + ((ad, kwargs[ad]),)
+            if anahtar in onbellek:
+                return onbellek[anahtar]
+            sonuc = fonksiyon(*args, **kwargs)
+            onbellek[anahtar] = sonuc
+            if maxsize is not None and len(onbellek) > maxsize:
+                # sözlük ekleme sırasını korur, ilk anahtar en eski girdidir
+                en_eski = list(onbellek.keys())[0]
+                del onbellek[en_eski]
+            return sonuc
+
+        return sarmalayici
+
+    return dekorator
+
+
 if __name__ == "__main__":
     from uzay_oyunu.akis import rota_sayaci_onbelleksiz
     from uzay_oyunu.oyun import galaksi_yukle

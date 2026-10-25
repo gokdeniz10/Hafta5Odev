@@ -3,9 +3,11 @@
 # Tarih: 25.10.2026
 # Açıklama: Hafta 5 dekoratörlerinin testleri.
 
+from functools import lru_cache
+
 import pytest
 
-from uzay_oyunu.dekoratorler import fib_cagri_sayilari, log_cagri, say, sure_olc, yakit_harca
+from uzay_oyunu.dekoratorler import fib_cagri_sayilari, hafiza, log_cagri, say, sure_olc, yakit_harca
 from uzay_oyunu.komutlar import KOMUTLAR, envanter, harita, komut, yardim
 
 
@@ -146,3 +148,95 @@ def test_yakit_harca_adli_argumanla():
     assert yakit_harca(miktar=30) == 70
     with pytest.raises(ValueError):
         yakit_harca(miktar=150)
+
+
+# --- Bonus: hafiza ---
+
+def test_hafiza_tekrar_cagrida_onbellekten_dondurur():
+    @hafiza()
+    @say
+    def kare(x: int) -> int:
+        """Sayının karesini döndürür."""
+        return x * x
+
+    assert kare(4) == 16
+    assert kare(4) == 16
+    assert kare.__wrapped__.cagri == 1
+    assert kare.__name__ == "kare"
+    assert kare.__doc__ == "Sayının karesini döndürür."
+
+
+def test_hafiza_farkli_argumanlar():
+    @hafiza()
+    @say
+    def topla_iki(a: int, b: int = 0) -> int:
+        """İki sayıyı toplar."""
+        return a + b
+
+    assert topla_iki(1, 2) == 3
+    assert topla_iki(2, 1) == 3
+    assert topla_iki(1, b=5) == 6
+    assert topla_iki.__wrapped__.cagri == 3
+    assert topla_iki(1, b=5) == 6
+    assert topla_iki.__wrapped__.cagri == 3
+
+
+def test_hafiza_sinirsiz_onbellek():
+    @hafiza(maxsize=None)
+    @say
+    def kare(x: int) -> int:
+        """Sayının karesini döndürür."""
+        return x * x
+
+    for i in range(200):
+        kare(i)
+    for i in range(200):
+        assert kare(i) == i * i
+    assert kare.__wrapped__.cagri == 200
+
+
+def test_hafiza_dolunca_en_eski_silinir():
+    @hafiza(maxsize=2)
+    @say
+    def kare(x: int) -> int:
+        """Sayının karesini döndürür."""
+        return x * x
+
+    kare(1)
+    kare(2)
+    kare(3)
+    assert kare.__wrapped__.cagri == 3
+    # 2 ve 3 hâlâ önbellekte
+    kare(2)
+    kare(3)
+    assert kare.__wrapped__.cagri == 3
+    # 1 en eski olduğu için silindi, yeniden hesaplanır
+    assert kare(1) == 1
+    assert kare.__wrapped__.cagri == 4
+
+
+def test_hafiza_lru_cache_ile_ayni_sonuc():
+    @hafiza()
+    def fib_hafiza(n: int) -> int:
+        """Özyinelemeli Fibonacci (hafiza ile)."""
+        if n < 2:
+            return n
+        return fib_hafiza(n - 1) + fib_hafiza(n - 2)
+
+    @hafiza(maxsize=3)
+    def fib_kucuk(n: int) -> int:
+        """Özyinelemeli Fibonacci (3 girdilik hafiza ile)."""
+        if n < 2:
+            return n
+        return fib_kucuk(n - 1) + fib_kucuk(n - 2)
+
+    @lru_cache
+    def fib_lru(n: int) -> int:
+        """Özyinelemeli Fibonacci (lru_cache ile)."""
+        if n < 2:
+            return n
+        return fib_lru(n - 1) + fib_lru(n - 2)
+
+    for n in range(40):
+        assert fib_hafiza(n) == fib_lru(n)
+        assert fib_kucuk(n) == fib_lru(n)
