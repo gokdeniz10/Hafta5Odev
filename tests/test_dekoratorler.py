@@ -3,7 +3,10 @@
 # Tarih: 25.10.2026
 # Açıklama: Hafta 5 dekoratörlerinin testleri.
 
+import pytest
+
 from uzay_oyunu.dekoratorler import fib_cagri_sayilari, log_cagri, say, sure_olc
+from uzay_oyunu.komutlar import KOMUTLAR, envanter, harita, komut, yardim
 
 
 # --- Görev 1: sure_olc ---
@@ -65,3 +68,57 @@ def test_log_cagri_ornek_cikti(capsys):
     cikti = capsys.readouterr().out
     assert cikti == "-> yolculuk('orion', hiz=3)\n<- yolculuk = 'orion hiz=3'\n"
     assert yolculuk.__name__ == "yolculuk"
+
+
+
+
+# --- Görev 4: komut sistemi ---
+
+def ornek_durum() -> dict:
+    """Testlerde kullanılan, sirius'ta duran bir oyun durumu."""
+    return {
+        "konum": "sirius",
+        "baglantilar": {"sirius": ["orion", "dünya", "kara_delik"], "orion": ["sirius"]},
+        "credits": True,
+        "engines": False,
+        "copilot": True,
+    }
+
+
+def test_komut_fonksiyonu_degistirmeden_kaydeder():
+    def deneme(durum: dict) -> str:
+        """Deneme komutu."""
+        return "deneme"
+
+    kayitli = komut("deneme_komutu", "sadece test için")(deneme)
+    assert kayitli == deneme
+    assert KOMUTLAR["deneme_komutu"] == (deneme, "sadece test için")
+    del KOMUTLAR["deneme_komutu"]
+
+
+def test_ayni_komut_adi_iki_kez_hata_verir():
+    with pytest.raises(ValueError):
+        @komut("yardim")
+        def ikinci_yardim(durum: dict) -> str:
+            """Aynı adlı ikinci komut."""
+            return ""
+    # eski kayıt bozulmamalı
+    assert KOMUTLAR["yardim"][0] == yardim
+
+
+def test_yardim_komutu():
+    beklenen = ("envanter  eşyalarını gösterir\n"
+                "harita    gidebileceğin gezegenleri gösterir\n"
+                "yardim    komutları listeler")
+    assert yardim(ornek_durum()) == beklenen
+
+
+def test_envanter_komutu():
+    assert envanter(ornek_durum()) == "Sende: bol kredi, yetenekli bir pilot"
+
+
+def test_harita_komutu():
+    assert harita(ornek_durum()) == "orion, dünya, kara_delik"
+    durum = ornek_durum()
+    durum["konum"] = "orion"
+    assert harita(durum) == "sirius"

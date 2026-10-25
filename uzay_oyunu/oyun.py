@@ -73,6 +73,9 @@ def hedef_menusu(hedefler: list[str]) -> str:
 
 def travel() -> None:
     """Oyunu baştan sona oynatır."""
+    # komutlar.py bu dosyayı import ettiği için KOMUTLAR'ı burada, fonksiyonun içinde import ediyoruz
+    from uzay_oyunu.komutlar import KOMUTLAR
+
     print("Uzay yolculuğuna hoş geldin! Amacın kara delikten geçmek.")
     galaksi = galaksi_yukle()
     planet = galaksi["konum"]
@@ -144,7 +147,19 @@ def travel() -> None:
         if not game_end:
             destinations = galaksi["baglantilar"][planet]
             print(hedef_menusu(destinations))
-            secim = input()
+            secim = input("> ")
+            # girilen şey bir komutsa komutu çalıştır, sonucu yaz ve tekrar sor
+            while secim in KOMUTLAR:
+                durum = {
+                    "konum": planet,
+                    "baglantilar": galaksi["baglantilar"],
+                    "credits": credits,
+                    "engines": engines,
+                    "copilot": copilot,
+                }
+                komut_fonksiyonu = KOMUTLAR[secim][0]
+                print(komut_fonksiyonu(durum))
+                secim = input("> ")
             try:
                 next(gosterge)
                 planet = destinations[int(secim) - 1]
