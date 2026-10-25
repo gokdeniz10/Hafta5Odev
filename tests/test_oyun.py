@@ -1,7 +1,7 @@
 # Ad Soyad: Gökdeniz Demirbağ
 # Öğrenci No: 20253004005
 # Tarih: 11.10.2026
-# Açıklama: Oyunu baştan sona oynatan testler (Hafta 2'den kalan testler).
+# Açıklama: Oyunu baştan sona oynatan testler (Hafta 3 başlangıç kodundan kalan testler).
 
 from uzay_oyunu.oyun import galaksi_yukle, travel
 
