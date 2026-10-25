@@ -106,7 +106,11 @@ def sinirla(alt: int, ust: int) -> Callable:
         @wraps(fonksiyon)
         def sarmalayici(*args: object, **kwargs: object) -> object:
             """İlk argümanı kontrol eder, uygunsa asıl fonksiyonu çağırır."""
-            deger = args[0]
+            if len(args) > 0:
+                deger = args[0]
+            else:
+                # ilk argüman adıyla verilmiş olabilir: yakit_harca(miktar=150)
+                deger = list(kwargs.values())[0]
             if deger < alt or deger > ust:
                 raise ValueError(fonksiyon.__name__ + ": " + str(deger) + " değeri "
                                  + str(alt) + "-" + str(ust) + " aralığında değil")

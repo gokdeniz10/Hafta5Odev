@@ -3,7 +3,7 @@
 # Tarih: 11.10.2026
 # Açıklama: Oyunu baştan sona oynatan testler (Hafta 2'den kalan testler).
 
-from uzay_oyunu.oyun import travel
+from uzay_oyunu.oyun import galaksi_yukle, travel
 
 
 def test_oyunu_kazan(monkeypatch, capsys):
@@ -32,3 +32,29 @@ def test_hazirliksiz_atlayinca_kaybet(monkeypatch, capsys):
     travel()
     cikti = capsys.readouterr().out
     assert "Kaybettin." in cikti
+
+
+def test_gecersiz_secimde_tekrar_sorar(monkeypatch, capsys):
+    # "abc", "5" ve "0" geçersiz; oyun çökmemeli, sonra sirius'a gidilip kaybedilir
+    girdiler = ["abc", "5", "0", "2", "1", "3", "evet"]
+    monkeypatch.setattr("builtins.input", lambda yazi="": girdiler.pop(0))
+    travel()
+    cikti = capsys.readouterr().out
+    assert cikti.count("Geçersiz seçim, tekrar dene.") == 3
+    assert "Kaybettin." in cikti
+    assert "Oyunu 2 hamlede bitirdin!" in cikti
+
+
+def test_gecersiz_secim_yakit_harcamaz(monkeypatch, capsys):
+    # önce 5 geçersiz seçim, sonra dünya ile sirius arasında gidip gelinir;
+    # geçersiz seçimler yakıt harcasaydı 20 yerine 15 hamlede biterdi
+    girdiler = ["abc"] * 5 + ["2"] * 22
+    monkeypatch.setattr("builtins.input", lambda yazi="": girdiler.pop(0))
+    travel()
+    cikti = capsys.readouterr().out
+    assert "Oyunu 20 hamlede bitirdin!" in cikti
+
+
+def test_galaksi_baska_klasorden_yuklenir(monkeypatch, tmp_path):
+    monkeypatch.chdir(tmp_path)
+    assert galaksi_yukle()["konum"] == "dünya"

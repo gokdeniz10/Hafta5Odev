@@ -54,7 +54,6 @@ def test_fib_20_dekorator_sirasi():
     assert fib_cagri_sayilari(20) == (21891, 39, 21)
 
 
-
 # --- Görev 3: log_cagri ---
 
 def test_log_cagri_ornek_cikti(capsys):
@@ -68,8 +67,6 @@ def test_log_cagri_ornek_cikti(capsys):
     cikti = capsys.readouterr().out
     assert cikti == "-> yolculuk('orion', hiz=3)\n<- yolculuk = 'orion hiz=3'\n"
     assert yolculuk.__name__ == "yolculuk"
-
-
 
 
 # --- Görev 4: komut sistemi ---
@@ -124,7 +121,6 @@ def test_harita_komutu():
     assert harita(durum) == "sirius"
 
 
-
 # --- Görev 5: sinirla ---
 
 def test_yakit_harca_ornek():
@@ -144,3 +140,9 @@ def test_yakit_harca_ust_sinir_disi():
 def test_yakit_harca_alt_sinir_disi():
     with pytest.raises(ValueError, match="yakit_harca: -1 değeri 0-100 aralığında değil"):
         yakit_harca(-1)
+
+
+def test_yakit_harca_adli_argumanla():
+    assert yakit_harca(miktar=30) == 70
+    with pytest.raises(ValueError):
+        yakit_harca(miktar=150)

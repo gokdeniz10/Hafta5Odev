@@ -6,6 +6,7 @@
 # Oyun haritası galaksi.json dosyasından okunur. Her yolculuk yakıt harcar.
 
 import json
+import os
 
 from uzay_oyunu.akis import yakit_gostergesi
 from uzay_oyunu.araclar import hamle_sayaci
@@ -33,7 +34,8 @@ def galaksi_kur(gezegenler: list[str], baglantilar: dict, baslangic: str, **kwar
 
 def galaksi_yukle() -> dict:
     """galaksi.json dosyasını okur ve galaksiyi kurar."""
-    dosya = open("uzay_oyunu/galaksi.json", encoding="utf-8")
+    # dosya yolu bu dosyanın klasörüne göre kuruluyor, böylece oyun her klasörden çalışır
+    dosya = open(os.path.dirname(__file__) + "/galaksi.json", encoding="utf-8")
     veri = json.load(dosya)
     dosya.close()
     return galaksi_kur(**veri)
@@ -147,19 +149,26 @@ def travel() -> None:
         if not game_end:
             destinations = galaksi["baglantilar"][planet]
             print(hedef_menusu(destinations))
-            secim = input("> ")
-            # girilen şey bir komutsa komutu çalıştır, sonucu yaz ve tekrar sor
-            while secim in KOMUTLAR:
-                durum = {
-                    "konum": planet,
-                    "baglantilar": galaksi["baglantilar"],
-                    "credits": credits,
-                    "engines": engines,
-                    "copilot": copilot,
-                }
-                komut_fonksiyonu = KOMUTLAR[secim][0]
-                print(komut_fonksiyonu(durum))
+            # geçerli bir gezegen numarası girilene kadar tekrar sor
+            gecerli = False
+            while not gecerli:
                 secim = input("> ")
+                if secim in KOMUTLAR:
+                    # girilen şey bir komutsa komutu çalıştır ve sonucu yaz
+                    durum = {
+                        "konum": planet,
+                        "baglantilar": galaksi["baglantilar"],
+                        "credits": credits,
+                        "engines": engines,
+                        "copilot": copilot,
+                    }
+                    komut_fonksiyonu = KOMUTLAR[secim][0]
+                    print(komut_fonksiyonu(durum))
+                elif secim.isdigit() and 1 <= int(secim) <= len(destinations):
+                    gecerli = True
+                else:
+                    print("Geçersiz seçim, tekrar dene.")
+            # yakıt sadece geçerli bir seçimden sonra harcanır
             try:
                 next(gosterge)
                 planet = destinations[int(secim) - 1]
