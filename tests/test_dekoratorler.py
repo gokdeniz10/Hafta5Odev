@@ -3,7 +3,7 @@
 # Tarih: 25.10.2026
 # Açıklama: Hafta 5 dekoratörlerinin testleri.
 
-from uzay_oyunu.dekoratorler import fib_cagri_sayilari, say, sure_olc
+from uzay_oyunu.dekoratorler import fib_cagri_sayilari, log_cagri, say, sure_olc
 
 
 # --- Görev 1: sure_olc ---
@@ -49,3 +49,19 @@ def test_say_cagrilari_sayiyor():
 
 def test_fib_20_dekorator_sirasi():
     assert fib_cagri_sayilari(20) == (21891, 39, 21)
+
+
+
+# --- Görev 3: log_cagri ---
+
+def test_log_cagri_ornek_cikti(capsys):
+    # ödevdeki örnek çıktıyı veren küçük bir yolculuk fonksiyonu
+    @log_cagri
+    def yolculuk(hedef: str, hiz: int = 1) -> str:
+        """Hedefi ve hızı metin olarak döndürür."""
+        return hedef + " hiz=" + str(hiz)
+
+    assert yolculuk("orion", hiz=3) == "orion hiz=3"
+    cikti = capsys.readouterr().out
+    assert cikti == "-> yolculuk('orion', hiz=3)\n<- yolculuk = 'orion hiz=3'\n"
+    assert yolculuk.__name__ == "yolculuk"

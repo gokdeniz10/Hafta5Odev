@@ -9,8 +9,10 @@ import json
 
 from uzay_oyunu.akis import yakit_gostergesi
 from uzay_oyunu.araclar import hamle_sayaci
+from uzay_oyunu.dekoratorler import log_cagri
 
 
+@log_cagri
 def galaksi_kur(gezegenler: list[str], baglantilar: dict, baslangic: str, **kwargs: int) -> dict:
     """Gezegenler ve bağlantılardan bir galaksi sözlüğü kurar.
 
@@ -58,6 +60,7 @@ def envanter_metni(credits: bool, engines: bool, copilot: bool) -> str:
     return "Sende: " + metin
 
 
+@log_cagri
 def hedef_menusu(hedefler: list[str]) -> str:
     """Gidilebilecek yerleri numaralı bir menü metni olarak döndürür."""
     metin = "Nereye gitmek istersin?"

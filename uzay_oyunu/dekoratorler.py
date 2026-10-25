@@ -73,6 +73,29 @@ def fib_cagri_sayilari(n: int) -> tuple[int, int, int]:
     return fib.cagri, fib_say_ustte.cagri, fib_cache_ustte.__wrapped__.cagri
 
 
+def log_cagri(fonksiyon: Callable) -> Callable:
+    """Çağrıdan önce fonksiyon adını ve argümanlarını, sonra dönüş değerini yazan dekoratör."""
+    @wraps(fonksiyon)
+    def sarmalayici(*args: object, **kwargs: object) -> object:
+        """Argümanları yazar, asıl fonksiyonu çağırır, sonucu yazar ve döndürür."""
+        metin = ""
+        # repr metinleri tırnaklı yazar: 'orion'
+        for arguman in args:
+            if metin != "":
+                metin = metin + ", "
+            metin = metin + repr(arguman)
+        for ad in kwargs:
+            if metin != "":
+                metin = metin + ", "
+            metin = metin + ad + "=" + repr(kwargs[ad])
+        print("-> " + fonksiyon.__name__ + "(" + metin + ")")
+        sonuc = fonksiyon(*args, **kwargs)
+        print("<- " + fonksiyon.__name__ + " = " + repr(sonuc))
+        return sonuc
+
+    return sarmalayici
+
+
 if __name__ == "__main__":
     from uzay_oyunu.akis import rota_sayaci_onbelleksiz
     from uzay_oyunu.oyun import galaksi_yukle
